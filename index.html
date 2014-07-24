@@ -1,0 +1,24 @@
+<!-- <canvas id="myCan" height=800 width=600></canvas> -->
+<img src="" id="myCan"/>
+
+<script>
+    var stage = document.getElementById("myCan");
+    var xmlhttp= new XMLHttpRequest();
+        
+    function foo() {
+        xmlhttp.open("GET", "/stream", false);
+        xmlhttp.onreadystatechange = resp; 
+        xmlhttp.send();    
+    }
+
+    function resp() {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200)
+        {
+            // stage.src = xmlhttp.responseText;
+            stage.setAttribute( 'src', 'data:image/png;base64,' + xmlhttp.responseText);
+        }
+    }
+
+    setInterval(foo, 100);
+
+</script>
