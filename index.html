@@ -1,24 +1,55 @@
 <!-- <canvas id="myCan" height=800 width=600></canvas> -->
 <img src="" id="myCan"/>
 
-<script>
-    var stage = document.getElementById("myCan");
-    var xmlhttp= new XMLHttpRequest();
-        
-    function foo() {
-        xmlhttp.open("GET", "/stream", false);
-        xmlhttp.onreadystatechange = resp; 
-        xmlhttp.send();    
-    }
-
-    function resp() {
-        if (xmlhttp.readyState==4 && xmlhttp.status==200)
-        {
-            // stage.src = xmlhttp.responseText;
-            stage.setAttribute( 'src', 'data:image/png;base64,' + xmlhttp.responseText);
+<script src="jquery-2.js"></script>
+<script async>
+    $(document).ready(function(){
+        var stage = document.getElementById("myCan");
+        var xmlhttp= new XMLHttpRequest();
+        var data = null;
+        $("#myCan").on('click contextmenu', function(e) {
+            e.preventDefault();
+            data = {
+                x: (e.clientX - stage.offsetLeft)/(stage.width + stage.offsetLeft),
+                y: (e.clientY - stage.offsetTop)/(stage.height + stage.offsetTop)
+            }
+            if (e.type == 'click') {
+                data.clickButton = 1;
+            } else if (e.type == 'contextmenu') {
+                data.clickButton = 2;
+            }
+            return false;
+        });
+            
+        function foo() {
+            url = "";
+            if (data == null) {
+                url = "/stream";
+            } else {
+                url = "/stream?" + data.x + "&" + data.y + "&" + data.clickButton;
+            }
+            xmlhttp.open("GET", url, false);
+            xmlhttp.onreadystatechange = resp; 
+            xmlhttp.send();    
         }
-    }
 
-    setInterval(foo, 100);
+        function resp() {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+                stage.setAttribute( 'src', 'data:image/png;base64,' + xmlhttp.responseText);
+                data = null;
+            }
+        }
 
+        alert ("press space to start screen cast");
+        var intervalId = null;
+        window.onkeypress = function(e) {
+            clearInterval(intervalId);
+            if (e.charCode == 32) {
+                intervalId = setInterval(foo, 500);    
+            } else if (e.charCode == 113) {
+                clearInterval(intervalId);
+            }
+        }    
+    });
 </script>
